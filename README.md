@@ -1,4 +1,4 @@
-# Throttler
+# Throttler [![Build Status](https://travis-ci.org/frojasg/throttler.svg?branch=master)](https://travis-ci.org/frojasg/throttler)
 
 ## What's this about?
 Let's say you application needs to make calls to an external service which has a restriction usage. You may only make X calls in Y seconds. With a throttler, you can ensure that calls you make do not cross the threshold rate.
