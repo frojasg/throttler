@@ -29,10 +29,12 @@ defmodule TimerBasedThrottler do
 
   #state machine
   def idle({:set_target, target}, state = %TimerBasedThrottler{queue: []}) do
+    Process.monitor(target)
     {:next_state, :idle, %{state | target: target}}
   end
 
   def idle({:set_target, target}, state) do
+    Process.monitor(target)
     state = %{state | target: target} |> deliver_messages |> timer
     {:next_state, :active, state}
   end
@@ -93,6 +95,14 @@ defmodule TimerBasedThrottler do
     # Logger.info "time! state_name: #{inspect state_name} state: #{inspect state}"
     :gen_fsm.send_event(self, :tick)
     {:next_state, state_name, state}
+  end
+
+  def handle_info({:DOWN, _ref, :process, pid, _reason}, state_name, state = %TimerBasedThrottler{target: target}) do
+    if(pid == target) do
+      {:next_state, :idle, %{state | target: nil, queue: [], messages_left_in_period: state.messages_per_period}}
+    else
+      {:next_state, state_name, state}
+    end
   end
 
   def terminate(reason, state_name, state) do
