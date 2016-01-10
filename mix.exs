@@ -7,6 +7,8 @@ defmodule Throttler.Mixfile do
      elixir: "~> 1.1",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     test_coverage: [tool: ExCoveralls],
+     preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.post": :test],
      deps: deps]
   end
 
@@ -28,6 +30,6 @@ defmodule Throttler.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [{:excoveralls, "~> 0.4", only: :test}]
   end
 end
