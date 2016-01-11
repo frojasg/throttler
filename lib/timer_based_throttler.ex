@@ -1,4 +1,17 @@
 defmodule TimerBasedThrottler do
+  @moduledoc """
+  Let's say you application needs to make calls to an external service which has
+  a restriction usage. You may only make X calls in Y seconds. With a throttler,
+  you can ensure that calls you make do not cross the threshold rate.
+
+
+  ## Examples
+
+      iex> {:ok, thr} = TimerBasedThrottler.start_link(messages: 3, period: 3*1000)
+      iex> TimerBasedThrottler.set_target(thr, printer)
+      iex> TimerBasedThrottler.enqueue(thr, {:print, "Hello World"})
+
+  """
   @behaviour :gen_fsm
   require Logger
 

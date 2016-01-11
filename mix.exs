@@ -30,6 +30,9 @@ defmodule Throttler.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:excoveralls, "~> 0.4", only: :test}]
+    [
+      {:excoveralls, "~> 0.4", only: :test},
+      {:credo, "~> 0.2", only: [:dev, :test]}
+    ]
   end
 end

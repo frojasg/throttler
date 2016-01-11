@@ -21,7 +21,7 @@ defmodule Printer do
 end
 
 
-{:ok, thr} = TimerBasedThrottler.start_link(messages: 3, period: 3*1*1000)
+{:ok, thr} = TimerBasedThrottler.start_link(messages: 3, period: 3*1000)
 {:ok, printer} = Printer.start
 
 #set target
