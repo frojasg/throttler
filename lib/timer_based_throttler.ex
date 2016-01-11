@@ -52,10 +52,6 @@ defmodule TimerBasedThrottler do
     {:next_state, :idle, %{state | timer: nil}}
   end
 
-  def idle(_msg, state) do
-    {:next_state, :idle, state}
-  end
-
   def active({:enqueue, msg}, state = %TimerBasedThrottler{queue: q}) do
     state = %{state | queue: ([msg | q] |> Enum.reverse)} |> deliver_messages
     {:next_state, :active, state}

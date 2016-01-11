@@ -71,4 +71,18 @@ defmodule TimerBasedThrottlerTest do
     assert_receive :two
   end
 
+  test "stay active if non target process dies" do
+    {:ok, thr} = TimerBasedThrottler.start_link(messages: 3, period: 3*1000)
+    {:ok, echo1} = Echo.start(self)
+    TimerBasedThrottler.set_target(thr, echo1)
+    {:ok, echo} = Echo.start(self)
+    TimerBasedThrottler.set_target(thr, echo)
+    Process.exit(echo1, :kill)
+    refute_receive _
+    TimerBasedThrottler.enqueue(thr, {:echo, :one})
+    TimerBasedThrottler.enqueue(thr, {:echo, :two})
+    assert_receive :one
+    assert_receive :two
+  end
+
 end
