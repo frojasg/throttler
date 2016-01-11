@@ -24,7 +24,7 @@ defmodule TimerBasedThrottler do
   end
 
   def enqueue(throttler, msg) do
-    :gen_fsm.send_event(throttler, {:queue, msg})
+    :gen_fsm.send_event(throttler, {:enqueue, msg})
   end
 
   #state machine
@@ -39,11 +39,11 @@ defmodule TimerBasedThrottler do
     {:next_state, :active, state}
   end
 
-  def idle({:queue, msg}, state = %TimerBasedThrottler{target: nil, queue: q}) do
+  def idle({:enqueue, msg}, state = %TimerBasedThrottler{target: nil, queue: q}) do
     {:next_state, :idle, %{state | queue: ([msg | q] |> Enum.reverse)}}
   end
 
-  def idle({:queue, msg}, state = %TimerBasedThrottler{target: target, queue: []}) when is_nil(target) == false do
+  def idle({:enqueue, msg}, state = %TimerBasedThrottler{target: target, queue: []}) when is_nil(target) == false do
     state = %{state | queue: [msg]} |> deliver_messages |> timer
     {:next_state, :active, state}
   end
@@ -56,7 +56,7 @@ defmodule TimerBasedThrottler do
     {:next_state, :idle, state}
   end
 
-  def active({:queue, msg}, state = %TimerBasedThrottler{queue: q}) do
+  def active({:enqueue, msg}, state = %TimerBasedThrottler{queue: q}) do
     state = %{state | queue: ([msg | q] |> Enum.reverse)} |> deliver_messages
     {:next_state, :active, state}
   end
