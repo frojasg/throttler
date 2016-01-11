@@ -32,6 +32,24 @@ defmodule TimerBasedThrottlerTest do
     assert_receive :five
   end
 
+  test "reset restriction after period" do
+    {:ok, thr} = TimerBasedThrottler.start_link(messages: 3, period: 3*1000)
+    {:ok, echo} = Echo.start(self)
+    TimerBasedThrottler.set_target(thr, echo)
+    TimerBasedThrottler.enqueue(thr, {:echo, :one})
+    TimerBasedThrottler.enqueue(thr, {:echo, :two})
+    assert_receive :one
+    assert_receive :two
+
+    refute_receive _, 3*1000
+    TimerBasedThrottler.enqueue(thr, {:echo, :three})
+    TimerBasedThrottler.enqueue(thr, {:echo, :four})
+    TimerBasedThrottler.enqueue(thr, {:echo, :five})
+    assert_receive :three
+    assert_receive :four
+    assert_receive :five
+  end
+
   test "comeback to idle state when target dies" do
     {:ok, thr} = TimerBasedThrottler.start_link(messages: 3, period: 3*1000)
     {:ok, echo} = Echo.start(self)
