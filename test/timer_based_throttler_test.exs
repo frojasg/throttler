@@ -32,4 +32,25 @@ defmodule TimerBasedThrottlerTest do
     assert_receive :five
   end
 
+  test "comeback to idle state when target dies" do
+    {:ok, thr} = TimerBasedThrottler.start_link(messages: 3, period: 3*1000)
+    {:ok, echo} = Echo.start(self)
+    TimerBasedThrottler.set_target(thr, echo)
+    TimerBasedThrottler.enqueue(thr, {:echo, :one})
+    TimerBasedThrottler.enqueue(thr, {:echo, :two})
+    assert_receive :one
+    assert_receive :two
+
+    Process.exit(echo, :kill)
+
+    refute_receive _, 3*1000
+    TimerBasedThrottler.enqueue(thr, {:echo, :one})
+
+    {:ok, echo} = Echo.start(self)
+    TimerBasedThrottler.set_target(thr, echo)
+    TimerBasedThrottler.enqueue(thr, {:echo, :two})
+    assert_receive :one
+    assert_receive :two
+  end
+
 end

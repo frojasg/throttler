@@ -49,7 +49,7 @@ defmodule TimerBasedThrottler do
   end
 
   def idle(:tick, state) do
-    {:next_state, :active, %{state | timer: nil}}
+    {:next_state, :idle, %{state | timer: nil}}
   end
 
   def idle(_msg, state) do
